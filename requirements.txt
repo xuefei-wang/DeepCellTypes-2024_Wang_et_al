@@ -1,0 +1,10 @@
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+pyyaml
+zarr>=3
+s3fs
+tifffile
+scikit-image
