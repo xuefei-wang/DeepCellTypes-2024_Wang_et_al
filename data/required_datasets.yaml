@@ -1,6 +1,68 @@
-embeddings.npz: 22dd0ea4469696eda374921c6b697217  
-marker_positivity.npz: a7ebc5d599f3063f5a55769bd75c1bfc  
-predictions.csv: b1a9e59d515323c3f85e472bf530e82b  
-zero_shot_maps.csv: 5ce32f33a8774f125feea7a566a88c23  
-zero_shot_ours.csv: e6f16e91c51b29c728c47a03720196f6  
-zero_shot_xgboost.csv: 268f578dafc89abf912678048c23699d  
+# Manifest of derived inputs for the figure notebooks.
+# key = object name in the public S3 bucket `deepcelltypes-2024-wang-et-al`
+#       (relative to `data/`), value = md5 checksum.
+# These are the small/medium derived files (CSV / NPZ / JSON) the notebooks
+# read from `data/` (gitignored). The data-copy step downloads them here.
+#
+# NOTE: the large zarr archives (expanded-tissuenet.zarr ~2.4 TB,
+# gold_standard.zarr) are NOT in this manifest -- they are the separate
+# released large-data artifact. The zarr-reading notebooks
+# (calibration, marker_positivity, fov_exemplars, data_statistics, and all
+# IQR-fence scoring) require that release; point at it via the DATA_DIR /
+# GOLD_ZARR env vars rather than these S3 files.
+
+# --- legacy inputs (original results.ipynb / data_statistics.ipynb) ---
+embeddings.npz: 22dd0ea4469696eda374921c6b697217
+marker_positivity.npz: a7ebc5d599f3063f5a55769bd75c1bfc
+predictions.csv: b1a9e59d515323c3f85e472bf530e82b
+zero_shot_maps.csv: 5ce32f33a8774f125feea7a566a88c23
+zero_shot_ours.csv: e6f16e91c51b29c728c47a03720196f6
+zero_shot_xgboost.csv: 268f578dafc89abf912678048c23699d
+
+# --- per-theme notebook inputs ---
+
+# embeddings/ -- latent.ipynb
+embeddings/svd_512.npz: 00d4779180e63e3fbba50ecd7ccbb38f
+
+# figures_data/ -- data_statistics.ipynb
+figures_data/channel_intensity_stats.npz: 3b24bf86ce95aea9dcf165269e176b06
+
+# gold_standard/ -- marker_positivity.ipynb (gold-standard ground truth)
+gold_standard/gold_standard_labelled/gold_standard_groundtruth.csv: e16ac32f6272b878269f13782e9cb6a5
+
+# output/ -- classification, calibration, latent, marker_positivity, ssl
+output/baseline_cellsighter_test_prediction.csv: 76a14fb3a0eb92a9b9e007ff27816389
+output/baseline_maps_test_prediction.csv: 4ba2c8ac98d0c7ce7ffa1d5cc3d587da
+output/baseline_xgb_tuned_test_prediction.csv: f7cdc5ce684669c4a9e268619744f209
+output/cls_token_embedding_final_frozen_cls.npz: 1367ea3a68c4ac904b8429a05974fa9f
+output/cls_token_meta_final_frozen_cls.npz: 991d5e3d10ee0e0d31f92f90702e2e68
+output/final_finetuned_mp_all_datasets.json: b1a33accab76d8d98380dcead16ea13b
+output/final_finetuned_test_prediction.csv: ac68fd4747eb2e043b9eaefc54d919df
+output/final_frozen_cls_attn_mp_artifacts.npz: 65e4203820ba1247c73765cfb7e4fca4
+output/final_frozen_cls_attn_prediction.csv: 71d0ad655958b3f68bc85f6dbb6231d3
+output/final_frozen_cls_gold_metrics.json: 420b49117cf15afddbf9ba0321e6082c
+output/final_frozen_cls_gold_preds.csv: 2be5aee22c0cdbd7a732ef8dd66d0b3f
+output/final_frozen_cls_mp_all_datasets.json: 4f3af7ed00924c76dac4d81d7d04e145
+output/final_frozen_cls_mp_per_marker.csv: cacfb01329bf6a24f1a097004d45be8c
+output/final_frozen_cls_mp_thresholds.json: 244b42dd0e23eb4bf1890ae02720baaa
+output/final_frozen_cls_test_mp_preds.csv: ead82c93b0adc53d9f684f3010addf88
+output/final_frozen_cls_test_prediction.csv: dfb3261f597c52152e3ef8fcf28755a4
+output/final_xgb_plain_test_prediction.csv: 1a4eb7d3b9a473bb025a5951cc8e4010
+output/iqr_sweep_frozen_cls.json: d5e0ccb7736e2067df1706e577fdc20f
+output/nimbus_all_mp_nimbus_metrics.json: 95d88a4f27f02bc57852adca5ce80e04
+output/nimbus_gold_metrics.json: 4d517d8864866270cc718695560558bc
+output/nimbus_gold_preds.csv: 219a3bcde99b0a019874f5d9f0ba8665
+output/nimbus_v10_0_nimbus_metrics.json: c111bf73a6b934c88d14f78773c7ae63
+output/ssl_ablation.csv: 00c61afbb5a38d8f7ffadac1270c4d51
+output/ssl_pretext_metrics.json: 0d96a3b14931b3852bce27d39c2f1445
+
+# output/tuning/ -- ssl.ipynb (xgboost tuning history)
+output/tuning/xgb_tune_v10_0_history.csv: 18050cfee1b257aeccebf1545abb843b
+
+# output/few_shot/keren/ -- few_shot.ipynb
+output/few_shot/keren/metrics.csv: b5b0888034c08b750783f476dbf660c5
+
+# splits/ -- data_statistics, fov_exemplars (FOV train/val/test splits)
+splits/fov_split_v10.json: 5aca3e6c716b49fa9e2293ab6e0e9aa0
+splits/fov_split_v10_test.json: 227d326b3b7f1d6254f19e23b7584b46
+splits/fov_split_v10_valsubset.json: 454bd3f5c82ae7737c2903423bf6b7db

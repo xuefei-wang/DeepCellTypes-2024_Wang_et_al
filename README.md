@@ -1,6 +1,6 @@
 # DeepCell Types Publication Figure
 
-This repo contains notebooks to reproduce the figures from Wang et al. (2024). 
+This repo contains a set of per-theme notebooks that reproduce the figures from Wang et al. (2024) -- covering classification, calibration/abstention, latent-space visualization, marker positivity, self-supervised pretraining, FOV exemplars, dataset statistics, and few-shot adaptation. See [`notebooks/README.md`](notebooks/README.md) for the full notebook list, the shared `dct_figures` helper package, the data-copy step, and how to run each notebook.
 
 The result figures only contain a subset of ExpandedTissueNet that includes all data sourced from public datasets. It is available at https://vanvalenlab.github.io/deepcell-types/. The remaining datasets were made available to our lab before their publication. These are available upon reasonable request and will be made publicly available upon publication of the corresponding manuscripts.
 
