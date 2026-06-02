@@ -1,22 +1,22 @@
 """Scoring helpers for the DeepCell Types reproduction notebooks.
 
-Pure numpy / pandas / (optional) zarr. Reproduces the headline cell-type
-numbers exactly as the DeepCell Types training code does:
+Pure numpy / pandas. Reproduces the headline cell-type numbers exactly as the
+DeepCell Types training code does:
 
     load prediction CSV -> per-cell argmax over the 51 CT columns ->
-    optional per-(tissue, modality) IQR-fence abstention at k ->
+    drop cells flagged ``abstained`` in the released predictions ->
     confusion matrix -> ``adjust_conf_mat_hierarchy(CELL_TYPE_HIERARCHY)`` ->
     has-support macro / weighted accuracy + F1.
 
-The scoring pulls three primitives from ``deepcell_types``:
-    - ``deepcell_types.training.config.CELL_TYPE_HIERARCHY``
-      (re-exported from ``deepcell_types.training.hierarchy``)
-    - ``deepcell_types.training.utils.adjust_conf_mat_hierarchy``
-      (defined in ``deepcell_types.training.metrics``)
-    - ``deepcell_types.training.abstention.compute_iqr_fence``
-      (defined in ``deepcell_types.abstention``)
-plus the ordered class list of 51 cell types. All four are reproduced
-below; each is pure-Python (numpy / dict).
+The model's abstention decision is precomputed and shipped as a boolean
+``abstained`` column in the released prediction CSV, so scoring here is a
+straight read-and-filter — no thresholds or per-group fences are recomputed.
+
+The scoring pulls two primitives from the DeepCell Types training code:
+    - ``CELL_TYPE_HIERARCHY`` (child predictions count as correct for parents)
+    - ``adjust_conf_mat_hierarchy``
+plus the ordered class list of 51 cell types. All are reproduced below; each
+is pure-Python (numpy / dict).
 """
 
 from __future__ import annotations
@@ -91,109 +91,23 @@ def adjust_conf_mat_hierarchy(conf_mat, hierarchy, ct2idx):
 
 
 # ---------------------------------------------------------------------------
-# Vendored from deepcell_types.abstention.compute_iqr_fence
-# (re-exported as deepcell_types.training.abstention.compute_iqr_fence).
-# Pure numpy — Tukey lower fence on a 1-D confidence array.
+# Confusion matrix over the kept (non-abstained) cells.
 # ---------------------------------------------------------------------------
-def compute_iqr_fence(max_softmax, k):
-    """Tukey lower fence ``Q1 - k * IQR`` for a 1-D array.
-
-    Returns ``None`` when fewer than 4 values are supplied (IQR undefined for
-    tiny samples; mirrors the ``len(vals) < 4`` guard).
-    """
-    arr = np.asarray(max_softmax, dtype=np.float64)
-    if arr.size < 4:
-        return None
-    q1, q3 = np.quantile(arr, [0.25, 0.75])
-    iqr = q3 - q1
-    return float(q1 - k * iqr)
-
-
-# ---------------------------------------------------------------------------
-# Dataset (tissue, modality) metadata — needed only for IQR-fence abstention,
-# which groups cells per (tissue, modality) bucket. Read lazily from the zarr
-# archive so importing this module stays dependency-light (no zarr at import).
-# Reproduces _load_dataset_metadata from the DeepCell Types training code.
-# ---------------------------------------------------------------------------
-_DATASET_META_CACHE = None
-
-
-def load_dataset_metadata(zarr_path):
-    """dataset_name -> (tissue, modality) frame, read from the zarr group attrs."""
-    global _DATASET_META_CACHE
-    zarr_path = str(zarr_path)
-    if _DATASET_META_CACHE is not None and _DATASET_META_CACHE[0] == zarr_path:
-        return _DATASET_META_CACHE[1]
-    import zarr
-
-    root = zarr.open(zarr_path, mode="r")
-    rows = []
-    for key in root.group_keys():
-        a = dict(root[key].attrs)
-        rows.append(
-            {
-                "dataset_name": key,
-                "tissue": a.get("tissue") or a.get("organ") or "unknown",
-                "modality": a.get("modality") or "unknown",
-            }
-        )
-    meta = pd.DataFrame(rows)
-    _DATASET_META_CACHE = (zarr_path, meta)
-    return meta
-
-
-# ---------------------------------------------------------------------------
-# Reproduces _kept_mask_for_abstention from the DeepCell Types training code
-# ---------------------------------------------------------------------------
-def kept_mask_for_abstention(df, ct_columns, zarr_path, k):
-    """Boolean kept-mask: True for cells that pass the per-group k-fence.
-
-    Per (tissue, modality) bucket, compute the IQR lower fence on the per-cell
-    max-softmax and abstain (drop) cells below it. Buckets with < 4 cells (or a
-    degenerate fence) abstain nobody.
-    """
-    probs = df[ct_columns].to_numpy(dtype=np.float32)
-    max_p = probs.max(axis=1)
-    meta = load_dataset_metadata(zarr_path)
-    df2 = df.merge(meta, on="dataset_name", how="left")
-    df2["tissue"] = df2["tissue"].fillna("unknown")
-    df2["modality"] = df2["modality"].fillna("unknown")
-    abstained = np.zeros(len(df), dtype=bool)
-    groups = df2.groupby(["tissue", "modality"], sort=False, dropna=False).indices
-    for _key, idx in groups.items():
-        if len(idx) < 4:
-            continue
-        fence = compute_iqr_fence(max_p[idx], k)
-        if fence is None:
-            continue
-        abstained[idx] = max_p[idx] < fence
-    return ~abstained
-
-
-# ---------------------------------------------------------------------------
-# Reproduces _hier_conf_mat from the DeepCell Types training code
-# ---------------------------------------------------------------------------
-def hier_conf_mat(csv_path, ct2idx, abstention_k=None, zarr_path=None):
+def hier_conf_mat(csv_path, ct2idx):
     """Hierarchy-adjusted confusion matrix + (n_total, n_kept).
 
-    Loads the prediction CSV, optionally applies per-(tissue, modality) IQR
-    abstention at ``abstention_k`` (dropping abstained cells), builds the raw
-    confusion matrix over ``ct2idx``, then applies
-    :func:`adjust_conf_mat_hierarchy`.
+    Loads the prediction CSV, drops any cells flagged in the ``abstained``
+    column (the model's abstention decision is precomputed in the released
+    predictions), builds the raw confusion matrix over ``ct2idx``, then applies
+    :func:`adjust_conf_mat_hierarchy`. CSVs without an ``abstained`` column
+    (e.g. the baselines, which use raw argmax) keep every cell.
     """
     df = pd.read_csv(csv_path)
     ct_columns = [c for c in df.columns if c in ct2idx]
     n_total = len(df)
-    n_kept = n_total
-    if abstention_k is not None and abstention_k > 0:
-        if zarr_path is None:
-            raise ValueError(
-                "abstention_k requires zarr_path (for (tissue, modality) "
-                "grouping); none supplied."
-            )
-        kept = kept_mask_for_abstention(df, ct_columns, zarr_path, abstention_k)
-        df = df.loc[kept].reset_index(drop=True)
-        n_kept = int(kept.sum())
+    if "abstained" in df.columns:
+        df = df.loc[~df["abstained"].astype(bool)].reset_index(drop=True)
+    n_kept = len(df)
     probs = df[ct_columns].values
     pred_names = np.array(ct_columns)[probs.argmax(axis=1)]
     true_names = df["cell_type_actual"].values
@@ -208,28 +122,22 @@ def hier_conf_mat(csv_path, ct2idx, abstention_k=None, zarr_path=None):
 # ---------------------------------------------------------------------------
 # Reproduces score_csv from the DeepCell Types training code
 # ---------------------------------------------------------------------------
-def score_csv(csv_path, ct2idx=None, abstention_k=None, zarr_path=None):
+def score_csv(csv_path, ct2idx=None):
     """Hier-adjusted macro/weighted accuracy + F1 (all in %).
 
     Args:
         csv_path: prediction CSV (one row per cell; 51 CT-probability columns
-            named after the keys of ``ct2idx`` plus a ``cell_type_actual``
-            column).
+            named after the keys of ``ct2idx``, a ``cell_type_actual`` column,
+            and an optional boolean ``abstained`` column flagging cells the
+            model declines to call).
         ct2idx: name->index mapping; defaults to :data:`CT2IDX`.
-        abstention_k: if > 0, apply per-(tissue, modality) IQR-fence CT
-            abstention at this k (requires ``zarr_path``). The paper headline
-            uses k=0.2.
-        zarr_path: archive providing per-dataset (tissue, modality); required
-            iff ``abstention_k`` is set.
 
     Returns dict with macro_acc, macro_f1, weighted_acc, weighted_f1, n_cells,
     n_kept, coverage, n_classes_with_support, and per-class breakdowns.
     """
     if ct2idx is None:
         ct2idx = CT2IDX
-    cm, n_cells, n_kept = hier_conf_mat(
-        csv_path, ct2idx, abstention_k=abstention_k, zarr_path=zarr_path
-    )
+    cm, n_cells, n_kept = hier_conf_mat(csv_path, ct2idx)
     support = cm.sum(axis=1)
     has_support = support > 0
     tp = np.diag(cm).astype(float)
@@ -267,7 +175,6 @@ def score_csv(csv_path, ct2idx=None, abstention_k=None, zarr_path=None):
         "n_cells": int(n_cells),
         "n_kept": int(n_kept),
         "coverage": coverage,
-        "abstention_k": abstention_k,
         "n_classes_with_support": int(has_support.sum()),
         "macro_acc": float(macro_acc),
         "macro_f1": float(macro_f1),
@@ -280,10 +187,7 @@ def score_csv(csv_path, ct2idx=None, abstention_k=None, zarr_path=None):
 
 
 def score_many(paths_by_label, ct2idx=None):
-    """paths_by_label: dict label -> csv_path. Returns dict label -> score dict.
-
-    Reproduces score_many from the DeepCell Types training code (no abstention applied).
-    """
+    """paths_by_label: dict label -> csv_path. Returns dict label -> score dict."""
     if ct2idx is None:
         ct2idx = CT2IDX
     out = {}
