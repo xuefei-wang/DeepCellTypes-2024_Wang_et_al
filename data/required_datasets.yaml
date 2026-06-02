@@ -28,7 +28,7 @@ output/ssl_ablation.csv: 00c61afbb5a38d8f7ffadac1270c4d51
 output/ssl_pretext_metrics.json: 0d96a3b14931b3852bce27d39c2f1445
 
 # XGBoost tuning history (Supp. Fig. 6c)
-output/tuning/xgb_tune_v10_0_history.csv: 18050cfee1b257aeccebf1545abb843b
+output/tuning/xgb_tune_history.csv: 18050cfee1b257aeccebf1545abb843b
 
 # Keren few-shot metrics (Supp. Fig. 6e)
 output/few_shot/keren/metrics.csv: b5b0888034c08b750783f476dbf660c5
@@ -37,5 +37,5 @@ output/few_shot/keren/metrics.csv: b5b0888034c08b750783f476dbf660c5
 figures_data/channel_intensity_stats.npz: 3b24bf86ce95aea9dcf165269e176b06
 
 # Per-cell metadata scan split (data_statistics)
-splits/fov_split_v10_valsubset.json: 454bd3f5c82ae7737c2903423bf6b7db
+splits/fov_split_valsubset.json: 454bd3f5c82ae7737c2903423bf6b7db
 

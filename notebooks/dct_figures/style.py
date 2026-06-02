@@ -17,7 +17,7 @@ Style follows a consistent publication figure style:
 - Colorblind-safe palette anchored on the project theme color #565D8B
 
 Cell-count axes are ALWAYS log-scaled (see ``use_log_count_axis``) so the
-six orders of magnitude spanned by the v10 archive are legible without
+six orders of magnitude spanned by the archive are legible without
 clipping rare classes.
 """
 
