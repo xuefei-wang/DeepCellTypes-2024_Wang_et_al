@@ -1,6 +1,6 @@
 """Self-test: reproduce the paper's headline cell-type numbers.
 
-Scores ``final_frozen_cls_test_prediction.csv`` with the
+Scores ``deepcelltypes_test_prediction.csv`` with the
 hierarchical-collapse + per-(tissue, modality) IQR-fence CT abstention at
 k=0.2 (the "DeepCell Types + IQR(k=0.2)" paper row) and checks the result
 against the published values within ±0.1.
@@ -23,7 +23,7 @@ _TOL = 0.1
 
 
 def main() -> int:
-    csv_path = paths.need(paths.OUTPUT / "final_frozen_cls_test_prediction.csv")
+    csv_path = paths.need(paths.OUTPUT / "deepcelltypes_test_prediction.csv")
     zarr_path = paths.need(paths.EXPANDED_TISSUENET_ZARR)
     s = score_csv(csv_path, CT2IDX, abstention_k=0.2, zarr_path=zarr_path)
 
