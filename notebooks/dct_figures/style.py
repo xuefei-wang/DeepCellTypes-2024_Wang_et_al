@@ -55,7 +55,7 @@ PAL = {
     "light_gray": "#D8DEE9",
 }
 
-# Lineage palette -- single source of truth lives in analysis.celltype_colors
+# Lineage palette -- single source of truth lives in dct_figures.colors
 # (LINEAGE_ANCHORS); imported here so every figure -- bar charts, heatmaps,
 # scatter, cell maps -- shares the same colorblind-tested anchors and the
 # per-celltype shade ramps stay flush with their parent lineage swatch.
@@ -235,7 +235,7 @@ MARKER_SIZE = 4.0
 #   FS_SMALL        dense per-row/per-column labels    6
 #   FS_TINY         very dense (e.g. per-CT yticks)    5
 #
-#   FS_PANEL_LABEL  bold A/B/C/D corner panel marker  10  (still inside spec)
+#   FS_PANEL_LABEL  bold A/B/C/D corner panel marker   9
 #   FS_SUPTITLE     figure-wide suptitle               9  (uses FS_AXIS_TITLE)
 # ---------------------------------------------------------------------------
 FS_AXIS_TITLE = 9.0
@@ -244,7 +244,7 @@ FS_BODY = 7.0
 FS_TICK = 6.5
 FS_SMALL = 6.0
 FS_TINY = 5.0
-FS_PANEL_LABEL = 10.0
+FS_PANEL_LABEL = 9.0
 FS_SUPTITLE = 9.0
 
 
@@ -388,10 +388,10 @@ def add_subtitle(ax, text):
     ax.text(0.5, 1.0, text,
             transform=ax.transAxes + offset,
             ha="center", va="bottom",
-            fontsize=7.0, color=PAL["gray"], style="italic")
+            fontsize=FS_BODY, color=PAL["gray"], style="italic")
 
 
-def add_value_labels(ax, bars, fmt="{:.1f}", fontsize=6.0, offset=1.5,
+def add_value_labels(ax, bars, fmt="{:.1f}", fontsize=FS_SMALL, offset=1.5,
                      color=None):
     """Add value labels above bar chart bars."""
     color = color or PAL["dark"]
@@ -413,6 +413,6 @@ def panel_label(ax, letter, x=-0.10, y=1.02):
         x, y, letter,
         transform=ax.transAxes,
         ha="left", va="bottom",
-        fontsize=9.0, fontweight="bold",
+        fontsize=FS_PANEL_LABEL, fontweight="bold",
         color=PAL["dark"],
     )
