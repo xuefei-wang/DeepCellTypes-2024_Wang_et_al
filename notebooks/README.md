@@ -26,10 +26,12 @@ Shared styling, color maps, and scoring helpers imported by every notebook:
   `need()` guard that raises an actionable error on missing inputs.
 - `style.py` — matplotlib/seaborn styling for consistent publication panels.
 - `colors.py` — cell-type and imaging-modality color maps.
-- `scoring.py` — the hierarchical-evaluation
-  helpers (`CELL_TYPE_HIERARCHY`, `adjust_conf_mat_hierarchy`,
-  `compute_iqr_fence`, and the ordered class list). Pure numpy / pandas /
-  (optional) zarr. Reproduces the headline cell-type numbers exactly as the
+- `scoring.py` — the hierarchical-evaluation helpers: the
+  `CELL_TYPE_HIERARCHY` and ordered class list (`CT2IDX`),
+  `adjust_conf_mat_hierarchy`, `prf_from_cm` (per-class
+  precision/recall/F1 from a confusion matrix), and `hier_conf_mat` /
+  `score_csv` / `score_many` for scoring prediction CSVs. Pure numpy /
+  pandas. Reproduces the headline cell-type numbers exactly as the
   DeepCell Types training code.
 
 ## Data

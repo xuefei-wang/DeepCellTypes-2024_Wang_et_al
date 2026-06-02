@@ -120,6 +120,35 @@ def hier_conf_mat(csv_path, ct2idx):
 
 
 # ---------------------------------------------------------------------------
+# Per-class precision / recall / F1 from a confusion matrix. Single source of
+# truth for the metric definition (zero-filled on divide-by-zero), reused by
+# score_csv and importable by the notebooks instead of re-deriving it.
+# ---------------------------------------------------------------------------
+def prf_from_cm(cm):
+    """Per-class (precision, recall, f1, support, has_support) from ``cm``.
+
+    Args:
+        cm: (N, N) confusion matrix (rows=true, cols=predicted).
+
+    Returns five arrays aligned to the matrix index order: ``precision``,
+    ``recall``, ``f1`` (floats; 0.0 where the denominator is 0), ``support``
+    (per-class true count), and ``has_support`` (``support > 0``).
+    """
+    cm = np.asarray(cm)
+    support = cm.sum(axis=1)
+    pred_sum = cm.sum(axis=0).astype(float)
+    tp = np.diag(cm).astype(float)
+    recall = np.zeros_like(tp)
+    precision = np.zeros_like(tp)
+    np.divide(tp, support, out=recall, where=support > 0)
+    np.divide(tp, pred_sum, out=precision, where=pred_sum > 0)
+    f1 = np.zeros_like(tp)
+    denom = recall + precision
+    np.divide(2 * recall * precision, denom, out=f1, where=denom > 0)
+    return precision, recall, f1, support, support > 0
+
+
+# ---------------------------------------------------------------------------
 # Reproduces score_csv from the DeepCell Types training code
 # ---------------------------------------------------------------------------
 def score_csv(csv_path, ct2idx=None):
@@ -138,17 +167,7 @@ def score_csv(csv_path, ct2idx=None):
     if ct2idx is None:
         ct2idx = CT2IDX
     cm, n_cells, n_kept = hier_conf_mat(csv_path, ct2idx)
-    support = cm.sum(axis=1)
-    has_support = support > 0
-    tp = np.diag(cm).astype(float)
-    pred_sum = cm.sum(axis=0).astype(float)
-    recall = np.zeros_like(tp)
-    precision = np.zeros_like(tp)
-    np.divide(tp, support, out=recall, where=support > 0)
-    np.divide(tp, pred_sum, out=precision, where=pred_sum > 0)
-    f1 = np.zeros_like(tp)
-    denom = recall + precision
-    np.divide(2 * recall * precision, denom, out=f1, where=denom > 0)
+    precision, recall, f1, support, has_support = prf_from_cm(cm)
 
     macro_acc = recall[has_support].mean() * 100.0
     macro_f1 = f1[has_support].mean() * 100.0
