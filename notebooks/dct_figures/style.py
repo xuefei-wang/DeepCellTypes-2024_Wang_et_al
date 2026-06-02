@@ -17,7 +17,7 @@ Style follows a consistent publication figure style:
 - Colorblind-safe palette anchored on the project theme color #565D8B
 
 Cell-count axes are ALWAYS log-scaled (see ``use_log_count_axis``) so the
-six orders of magnitude spanned by the v10 archive are legible without
+six orders of magnitude spanned by the archive are legible without
 clipping rare classes.
 """
 
@@ -131,10 +131,9 @@ PERF_AXES_MARGINS = dict(left_in=0.85, right_in=0.32,
 
 # Method names recognised as baselines for bar coloring. Match is
 # case-insensitive substring on the label (newlines are stripped). DCT
-# variants ("DeepCell Types", "Frozen-CLS", "Pretrain+FT", "Ours") fall
+# variants ("DeepCell Types", "From Scratch", "Pretrain+FT", "Ours") fall
 # through and receive the theme color.
-BASELINE_METHODS = ("XGBoost", "XGB", "MAPS", "CellSighter", "Nimbus",
-                    "scratch")
+BASELINE_METHODS = ("XGBoost", "XGB", "MAPS", "CellSighter", "Nimbus")
 
 
 def is_baseline_method(label: str) -> bool:
