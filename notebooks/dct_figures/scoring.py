@@ -3,14 +3,12 @@
 Pure numpy / pandas. Reproduces the headline cell-type numbers exactly as the
 DeepCell Types training code does:
 
-    load prediction CSV -> per-cell argmax over the 51 CT columns ->
-    drop cells flagged ``abstained`` in the released predictions ->
-    confusion matrix -> ``adjust_conf_mat_hierarchy(CELL_TYPE_HIERARCHY)`` ->
-    has-support macro / weighted accuracy + F1.
-
-The model's abstention decision is precomputed and shipped as a boolean
-``abstained`` column in the released prediction CSV, so scoring here is a
-straight read-and-filter — no thresholds or per-group fences are recomputed.
+    load prediction CSV -> per-cell argmax over the 51 CT columns (raw
+    argmax, no per-cell abstention) -> confusion matrix ->
+    ``adjust_conf_mat_hierarchy(CELL_TYPE_HIERARCHY)`` -> macro / weighted
+    accuracy + F1 over classes meeting a ``min_support`` floor (default 50,
+    the paper's msup50 protocol; ``min_support=1`` reproduces the unfloored
+    has-support variant).
 
 The scoring pulls two primitives from the DeepCell Types training code:
     - ``CELL_TYPE_HIERARCHY`` (child predictions count as correct for parents)
@@ -91,23 +89,20 @@ def adjust_conf_mat_hierarchy(conf_mat, hierarchy, ct2idx):
 
 
 # ---------------------------------------------------------------------------
-# Confusion matrix over the kept (non-abstained) cells.
+# Confusion matrix over all cells (raw argmax, no per-cell abstention).
 # ---------------------------------------------------------------------------
 def hier_conf_mat(csv_path, ct2idx):
     """Hierarchy-adjusted confusion matrix + (n_total, n_kept).
 
-    Loads the prediction CSV, drops any cells flagged in the ``abstained``
-    column (the model's abstention decision is precomputed in the released
-    predictions), builds the raw confusion matrix over ``ct2idx``, then applies
-    :func:`adjust_conf_mat_hierarchy`. CSVs without an ``abstained`` column
-    (e.g. the baselines, which use raw argmax) keep every cell.
+    Loads the prediction CSV, builds the raw confusion matrix over
+    ``ct2idx`` via per-cell argmax, then applies
+    :func:`adjust_conf_mat_hierarchy`. Raw argmax, no per-cell abstention —
+    ``n_kept`` always equals ``n_total`` (kept for backward-compatible
+    return shape / coverage reporting).
     """
     df = pd.read_csv(csv_path)
     ct_columns = [c for c in df.columns if c in ct2idx]
     n_total = len(df)
-    if "abstained" in df.columns:
-        df = df.loc[~df["abstained"].astype(bool)].reset_index(drop=True)
-    n_kept = len(df)
     probs = df[ct_columns].values
     pred_names = np.array(ct_columns)[probs.argmax(axis=1)]
     true_names = df["cell_type_actual"].values
@@ -116,7 +111,7 @@ def hier_conf_mat(csv_path, ct2idx):
     for t, p in zip(true_names, pred_names):
         if t in ct2idx and p in ct2idx:
             cm[ct2idx[t], ct2idx[p]] += 1
-    return adjust_conf_mat_hierarchy(cm, CELL_TYPE_HIERARCHY, ct2idx), n_total, n_kept
+    return adjust_conf_mat_hierarchy(cm, CELL_TYPE_HIERARCHY, ct2idx), n_total, n_total
 
 
 # ---------------------------------------------------------------------------
@@ -151,32 +146,35 @@ def prf_from_cm(cm):
 # ---------------------------------------------------------------------------
 # Reproduces score_csv from the DeepCell Types training code
 # ---------------------------------------------------------------------------
-def score_csv(csv_path, ct2idx=None):
+def score_csv(csv_path, ct2idx=None, min_support=50):
     """Hier-adjusted macro/weighted accuracy + F1 (all in %).
 
     Args:
         csv_path: prediction CSV (one row per cell; 51 CT-probability columns
-            named after the keys of ``ct2idx``, a ``cell_type_actual`` column,
-            and an optional boolean ``abstained`` column flagging cells the
-            model declines to call).
+            named after the keys of ``ct2idx``, and a ``cell_type_actual``
+            column). Raw argmax, no per-cell abstention.
         ct2idx: name->index mapping; defaults to :data:`CT2IDX`.
+        min_support: a class enters the macro/weighted mean only if its
+            hierarchy-adjusted support is >= this floor (default 50,
+            matching the paper's msup50 protocol). Use ``min_support=1``
+            for the unfloored has-support variant.
 
     Returns dict with macro_acc, macro_f1, weighted_acc, weighted_f1, n_cells,
-    n_kept, coverage, n_classes_with_support, and per-class breakdowns.
+    n_kept, coverage, n_classes_with_support, min_support,
+    n_classes_min_support, and per-class breakdowns (unfloored, support>0).
     """
     if ct2idx is None:
         ct2idx = CT2IDX
     cm, n_cells, n_kept = hier_conf_mat(csv_path, ct2idx)
     precision, recall, f1, support, has_support = prf_from_cm(cm)
+    keep = support >= min_support
 
-    macro_acc = recall[has_support].mean() * 100.0
-    macro_f1 = f1[has_support].mean() * 100.0
-    total = support[has_support].sum()
+    macro_acc = float(recall[keep].mean() * 100.0) if keep.any() else float("nan")
+    macro_f1 = float(f1[keep].mean() * 100.0) if keep.any() else float("nan")
+    total = support[keep].sum()
     if total > 0:
-        weighted_acc = ((recall[has_support] * support[has_support]).sum()
-                        / total) * 100.0
-        weighted_f1 = ((f1[has_support] * support[has_support]).sum()
-                       / total) * 100.0
+        weighted_acc = float(((recall[keep] * support[keep]).sum() / total) * 100.0)
+        weighted_f1 = float(((f1[keep] * support[keep]).sum() / total) * 100.0)
     else:
         weighted_acc = weighted_f1 = float("nan")
 
@@ -195,17 +193,19 @@ def score_csv(csv_path, ct2idx=None):
         "n_kept": int(n_kept),
         "coverage": coverage,
         "n_classes_with_support": int(has_support.sum()),
-        "macro_acc": float(macro_acc),
-        "macro_f1": float(macro_f1),
-        "weighted_acc": float(weighted_acc),
-        "weighted_f1": float(weighted_f1),
+        "min_support": int(min_support),
+        "n_classes_min_support": int(keep.sum()),
+        "macro_acc": macro_acc,
+        "macro_f1": macro_f1,
+        "weighted_acc": weighted_acc,
+        "weighted_f1": weighted_f1,
         "per_class_acc": per_class_acc,
         "per_class_f1": per_class_f1,
         "per_class_support": per_class_support,
     }
 
 
-def score_many(paths_by_label, ct2idx=None):
+def score_many(paths_by_label, ct2idx=None, min_support=50):
     """paths_by_label: dict label -> csv_path. Returns dict label -> score dict."""
     if ct2idx is None:
         ct2idx = CT2IDX
@@ -214,5 +214,5 @@ def score_many(paths_by_label, ct2idx=None):
         if not Path(p).exists():
             print(f"  [score_csv] WARN: {p} not found, skipping {label}")
             continue
-        out[label] = score_csv(p, ct2idx)
+        out[label] = score_csv(p, ct2idx, min_support=min_support)
     return out
