@@ -10,7 +10,6 @@ outputs.
 | Notebook | What it produces |
 | --- | --- |
 | `classification.ipynb` | Cell-type classification results: confusion matrix, per-cell-type / per-modality / per-tissue F1, and a cross-method benchmark (our model vs. XGBoost / MAPS / static baselines). |
-| `calibration.ipynb` | Abstention / calibration analysis (reliability diagram and confidence-by-correctness). |
 | `latent.ipynb` | Latent-space visualization (NCA / t-SNE of [CLS]-token embeddings, colored by cell type and by imaging modality). |
 | `marker_positivity.ipynb` | Marker-positivity benchmarks: the headline comparison vs Nimbus, a per-marker F1 waterfall, FiLM decision curves, and the learned-threshold histogram. |
 | `ssl.ipynb` | Self-supervised pretraining ablations: From Scratch vs Pretrain + Fine-tune metric bars and the masked-marker pretext-task diagnostic. |

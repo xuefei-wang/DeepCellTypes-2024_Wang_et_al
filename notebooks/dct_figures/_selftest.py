@@ -1,8 +1,9 @@
 """Self-test: reproduce the paper's headline cell-type numbers.
 
-Scores ``deepcelltypes_test_prediction.csv`` with the hierarchical collapse,
-excluding the cells flagged ``abstained`` in the released predictions (the
-DeepCell Types paper-headline row), and checks the result against the
+Scores ``deepcelltypes_test_prediction.csv`` with the hierarchical collapse
+(raw argmax, no CT abstention; classes below the msup50 floor,
+``min_support=50``, are excluded from the macro/weighted mean — the
+DeepCell Types paper-headline row) and checks the result against the
 published values within ±0.1.
 
 Run: ``python -m notebooks.dct_figures._selftest``
@@ -14,10 +15,10 @@ from . import paths
 from .scoring import CT2IDX, score_csv
 
 _EXPECTED = {
-    "macro_acc": 91.72,
-    "macro_f1": 83.84,
-    "weighted_acc": 95.34,
-    "weighted_f1": 95.40,
+    "macro_acc": 85.17,
+    "macro_f1": 84.44,
+    "weighted_acc": 91.57,
+    "weighted_f1": 91.52,
 }
 _TOL = 0.1
 
