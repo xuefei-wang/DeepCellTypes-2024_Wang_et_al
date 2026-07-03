@@ -4,7 +4,7 @@ Run ONCE in the workspace venv (needs zarr + the workspace ``analysis`` package
 and ``deepcell_types`` on PYTHONPATH):
 
     cd /data/xwang3/Projects/deepcell-types-research-workspace
-    PYTHONPATH=.:/data/xwang3/Projects/DeepCellTypes-2024_Wang_et_al \
+    PYTHONPATH=.:/path/to/this-figures-repo \
       .venv/bin/python -m notebooks.dct_figures.unannotated_bundle
 
 For each of the 6 paper FOVs it reuses the workspace producer's DATA half
@@ -39,7 +39,8 @@ from analysis.celltype_colors import celltype_color_mapping
 from deepcell_types.training.config import TissueNetConfig
 
 ZARR = "/data/xwang3/expanded-tissuenet.zarr"
-PUB = Path("/data/xwang3/Projects/DeepCellTypes-2024_Wang_et_al/data/output/unannotated")
+# Public-repo output dir, derived from this file's location so it survives a repo rename.
+PUB = Path(__file__).resolve().parents[2] / "data/output/unannotated"
 PRED_DIR = Path("output/unannotated")
 CROP = 1024
 
