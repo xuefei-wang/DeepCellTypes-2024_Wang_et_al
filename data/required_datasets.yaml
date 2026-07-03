@@ -10,28 +10,28 @@
 # DATA_DIR env var rather than these S3 files.
 
 # Prediction CSVs, marker-positivity, and SSL inputs (output/)
-output/baseline_cellsighter_test_prediction.csv: 76a14fb3a0eb92a9b9e007ff27816389
-output/baseline_maps_test_prediction.csv: 4ba2c8ac98d0c7ce7ffa1d5cc3d587da
-output/baseline_xgb_tuned_test_prediction.csv: f7cdc5ce684669c4a9e268619744f209
+output/baseline_cellsighter_test_prediction.csv: b47cb59a6bcd734f25a6ccfd890be939
+output/baseline_maps_test_prediction.csv: 1cd3c1d63cfccf0b16dc40fb32f52844
+output/baseline_xgb_tuned_test_prediction.csv: 6c5e4bd2668bc9fb5780353e8a55acec
 output/deepcelltypes_test_prediction.csv: 424c78529e258dc9f9d3629da245eda2
-output/final_xgb_plain_test_prediction.csv: 1a4eb7d3b9a473bb025a5951cc8e4010
+output/final_xgb_plain_test_prediction.csv: c6d241002d7eddf7547ce31030ad13aa
 output/cls_token_embedding_deepcelltypes.npz: acdc97253b38be662454ceefb95e8b70
 output/cls_token_meta_deepcelltypes.npz: 41c3f565472a4f217f82f9a5f367b7b6
 output/deepcelltypes_mp_per_marker.csv: 9631e43d7e7f3a40b43671ae4fb9b943
-output/deepcelltypes_mp_thresholds.json: 244b42dd0e23eb4bf1890ae02720baaa
-output/deepcelltypes_test_mp_preds.csv: ead82c93b0adc53d9f684f3010addf88
+output/deepcelltypes_mp_thresholds.json: 14d5618d6778f92cc1724e84a088b0c9
+output/deepcelltypes_test_mp_preds.csv: cc57effd80c68cddf21e3b3993cffb3d
 output/deepcelltypes_mp_all_datasets.json: d7662750c445fd48313bc82ff2f8fc9e
 output/deepcelltypes_gold_metrics.json: 567f9e6e0b54642937131a9033fe4e6f
 output/nimbus_gold_metrics.json: 4d517d8864866270cc718695560558bc
 output/nimbus_all_mp_nimbus_metrics.json: 95d88a4f27f02bc57852adca5ce80e04
 output/ssl_ablation.csv: 32eaf498a79288454bb6f463d3902a91
-output/ssl_pretext_metrics.json: 0d96a3b14931b3852bce27d39c2f1445
+output/ssl_pretext_metrics.json: 41875eec500caaad8f5c787631eb0a25
 
 # XGBoost tuning history (Supp. Fig. 6c)
-output/tuning/xgb_tune_history.csv: 18050cfee1b257aeccebf1545abb843b
+output/tuning/xgb_tune_history.csv: 4d04e4a2d1dc01d487e12fe4037fcaf6
 
 # Keren few-shot metrics (Supp. Fig. 6e)
-output/few_shot/keren/metrics.csv: 5b6f443690a821a0d5c7a0f0b77e176b
+output/few_shot/keren/metrics.csv: 3e9f0c2aa74104b0d8a36e69c661166e
 
 # Cached per-cell intensity table (Supp. Fig. 3)
 figures_data/channel_intensity_stats.npz: 3b24bf86ce95aea9dcf165269e176b06
