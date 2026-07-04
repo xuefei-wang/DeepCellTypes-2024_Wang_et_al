@@ -1,6 +1,62 @@
-embeddings.npz: 22dd0ea4469696eda374921c6b697217  
-marker_positivity.npz: a7ebc5d599f3063f5a55769bd75c1bfc  
-predictions.csv: b1a9e59d515323c3f85e472bf530e82b  
-zero_shot_maps.csv: 5ce32f33a8774f125feea7a566a88c23  
-zero_shot_ours.csv: e6f16e91c51b29c728c47a03720196f6  
-zero_shot_xgboost.csv: 268f578dafc89abf912678048c23699d  
+# Manifest of derived inputs for the figure notebooks.
+# key = object name in the public S3 bucket `deepcelltypes-2024-wang-et-al`
+#       (relative to `data/`), value = md5 checksum.
+# These are the small/medium derived files (CSV / NPZ / JSON) the notebooks
+# read from `data/` (gitignored). Download them here, preserving the paths.
+#
+# NOTE: the large `expanded-tissuenet.zarr` archive is NOT in this manifest --
+# it is the separate released large-data artifact. The archive-reading
+# notebooks (fov_exemplars, data_statistics) require it; point at it via the
+# DATA_DIR env var rather than these S3 files.
+
+# Prediction CSVs, marker-positivity, and SSL inputs (output/)
+output/baseline_cellsighter_test_prediction.csv: b47cb59a6bcd734f25a6ccfd890be939
+output/baseline_maps_test_prediction.csv: 1cd3c1d63cfccf0b16dc40fb32f52844
+output/baseline_xgb_tuned_test_prediction.csv: 6c5e4bd2668bc9fb5780353e8a55acec
+output/deepcelltypes_test_prediction.csv: 424c78529e258dc9f9d3629da245eda2
+output/final_xgb_plain_test_prediction.csv: c6d241002d7eddf7547ce31030ad13aa
+output/cls_token_embedding_deepcelltypes.npz: acdc97253b38be662454ceefb95e8b70
+output/cls_token_meta_deepcelltypes.npz: 41c3f565472a4f217f82f9a5f367b7b6
+output/deepcelltypes_mp_per_marker.csv: 9631e43d7e7f3a40b43671ae4fb9b943
+output/deepcelltypes_mp_thresholds.json: 14d5618d6778f92cc1724e84a088b0c9
+output/deepcelltypes_test_mp_preds.csv: cc57effd80c68cddf21e3b3993cffb3d
+output/deepcelltypes_mp_all_datasets.json: d7662750c445fd48313bc82ff2f8fc9e
+output/deepcelltypes_gold_metrics.json: 567f9e6e0b54642937131a9033fe4e6f
+output/nimbus_gold_metrics.json: 4d517d8864866270cc718695560558bc
+output/nimbus_all_mp_nimbus_metrics.json: 95d88a4f27f02bc57852adca5ce80e04
+output/ssl_ablation.csv: 32eaf498a79288454bb6f463d3902a91
+output/ssl_pretext_metrics.json: 41875eec500caaad8f5c787631eb0a25
+
+# Per-channel inference-time benchmark (Supp. Fig. 9d)
+output/inference_time.csv: 6031ff94202da6f080e9beef664af8c3
+
+# XGBoost tuning history (Supp. Fig. 6c)
+output/tuning/xgb_tune_history.csv: 4d04e4a2d1dc01d487e12fe4037fcaf6
+
+# Keren few-shot metrics (Supp. Fig. 6e)
+output/few_shot/keren/metrics.csv: 3e9f0c2aa74104b0d8a36e69c661166e
+
+# Unannotated external-dataset plot bundles (Supp. Figs. 10-12) -- per-FOV
+# offline render inputs (crop mask + marker composite + per-method RGB maps in
+# the .npz; metadata + composition fractions in the .json) read by
+# notebooks/unannotated.ipynb.
+output/unannotated/liu_gi_mibi_Slide21Stain1_Point13_R8C1.npz: 775d9efce430a128d2a4f8882a8ce1a6
+output/unannotated/liu_gi_mibi_Slide21Stain1_Point13_R8C1.json: 1aba3b3caaf40197738d04bc94de3b4b
+output/unannotated/HBM236_WBFT_443.npz: 8c99be7045e0a7455fcbb51d73248b51
+output/unannotated/HBM236_WBFT_443.json: 46b1660bbc91206fada3fe98c8da2d60
+output/unannotated/SP08_8_CR_001.npz: 04f22c99a783a21cdf955d1e5d7a0b72
+output/unannotated/SP08_8_CR_001.json: 4143282a6b212435678651a8105dcbf1
+output/unannotated/liu_reproductive_mibi_Slide21Stain1_Point11_R6C7.npz: 5aa9dac86f24a220472c59b8697be952
+output/unannotated/liu_reproductive_mibi_Slide21Stain1_Point11_R6C7.json: 1ad7bbb2699b750e2cee88e4f90a5aaf
+output/unannotated/HBM564_DSPG_945.npz: c3ae3677e8fc98df8e5ada0725d108b0
+output/unannotated/HBM564_DSPG_945.json: 786e56c062e836750d87d0a04595e995
+output/unannotated/HBM222_WQKC_382.npz: 953a6a49bd09794fd8402a34277d7473
+output/unannotated/HBM222_WQKC_382.json: 3ad492d47adc3b60257e3d15d96c7c63
+output/unannotated/_display.json: 66ea6a6d964f55bdb2c986294b202a35
+
+# Cached per-cell intensity table (Supp. Fig. 3)
+figures_data/channel_intensity_stats.npz: 3b24bf86ce95aea9dcf165269e176b06
+
+# Per-cell metadata scan split (data_statistics)
+splits/fov_split_valsubset.json: 454bd3f5c82ae7737c2903423bf6b7db
+
