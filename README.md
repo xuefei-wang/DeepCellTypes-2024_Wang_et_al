@@ -103,7 +103,9 @@ https://github.com/vanvalenlab/deepcell-types.
   author={Wang, Xuefei and Dilip, Rohit and Iqbal, Ahamed Raffey and Bussi, Yuval and Brown, Caitlin and Pradhan, Elora and Jain, Yashvardhan and Yu, Kevin and Li, Shenyi and Abt, Martin and B{\"o}rner, Katy and Keren, Leeat and Yue, Yisong and Barnowski, Ross and Van Valen, David},
   journal={bioRxiv},
   pages={2024--11},
-  year={2024},
+  year={2026},
+  doi={10.1101/2024.11.02.621624},
+  url={https://www.biorxiv.org/content/10.1101/2024.11.02.621624v4},
   publisher={Cold Spring Harbor Laboratory}
 }
 ```

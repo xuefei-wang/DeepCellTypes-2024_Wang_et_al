@@ -1,6 +1,6 @@
 # Figure-reproduction notebooks
 
-Per-theme notebooks that reproduce the figures in Wang et al. (2024). Each
+Per-theme notebooks that reproduce the figures in Wang et al. (2026). Each
 notebook is self-contained: it reads derived inputs from `../data/` (and, for
 a few, the released zarr archives), then renders the panels with embedded
 outputs.
