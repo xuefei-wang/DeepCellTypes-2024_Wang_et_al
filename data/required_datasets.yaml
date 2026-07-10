@@ -30,13 +30,14 @@ output/ssl_pretext_metrics.json: 41875eec500caaad8f5c787631eb0a25
 # Per-channel inference-time benchmark (Supp. Fig. 9d)
 output/inference_time.csv: 6031ff94202da6f080e9beef664af8c3
 
-# XGBoost tuning history (Supp. Fig. 6c)
+# XGBoost tuning history (Supp. Fig. 9e)
 output/tuning/xgb_tune_history.csv: 4d04e4a2d1dc01d487e12fe4037fcaf6
 
-# Keren few-shot metrics (Supp. Fig. 6e)
+# Keren few-shot metrics (Supp. Fig. 9c)
 output/few_shot/keren/metrics.csv: 3e9f0c2aa74104b0d8a36e69c661166e
 
-# Unannotated external-dataset plot bundles (Supp. Figs. 10-12) -- per-FOV
+# Unannotated external-dataset plot bundles (legacy: Supp. Figs. 10-12 in
+# earlier preprint versions, removed from the current draft) -- per-FOV
 # offline render inputs (crop mask + marker composite + per-method RGB maps in
 # the .npz; metadata + composition fractions in the .json) read by
 # notebooks/unannotated.ipynb.
