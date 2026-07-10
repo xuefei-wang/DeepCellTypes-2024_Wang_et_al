@@ -16,7 +16,7 @@ outputs.
 | `fov_exemplars.ipynb` | Field-of-view exemplar montages rendered from the expanded-TissueNet zarr. |
 | `data_statistics.ipynb` | Dataset composition statistics (counts by cell type / modality / tissue, channel-intensity stats, FOV split sizes), computed from the zarr archive. |
 | `few_shot.ipynb` | Few-shot adaptation results on the Keren held-out dataset. |
-| `unannotated.ipynb` | Cell-type predictions on unannotated external datasets (Supp. Figs. 10-12): XGBoost / CellSighter / MAPS / DeepCell Types spatial maps + predicted composition, rendered from saved per-FOV plot bundles. |
+| `unannotated.ipynb` | **Legacy** — cell-type predictions on unannotated external datasets: XGBoost / CellSighter / MAPS / DeepCell Types spatial maps + predicted composition, rendered from saved per-FOV plot bundles. These were Supplementary Figures 10–12 in earlier preprint versions; the current draft removes them (the out-of-distribution / new-dataset story is now the `preproc-adapt` Supplementary Methods section), so this notebook is retained for reference only and is not a current publication figure. |
 
 ## Helper package: `dct_figures`
 

@@ -6,11 +6,12 @@
 > including commercial use, contact `vanvalenlab@gmail.com`.
 
 This repository reproduces the publication figures (Figures 1–3 and
-Supplementary Figures 1–12) from Wang et al., *Generalized cell phenotyping for
+Supplementary Figures 1–9) from Wang et al., *Generalized cell phenotyping for
 spatial proteomics with language-informed vision models*. It contains a set of
 per-theme notebooks covering classification, latent-space visualization, marker
-positivity, self-supervised pretraining, FOV exemplars, dataset statistics,
-few-shot adaptation, and unannotated external-dataset predictions. See
+positivity, self-supervised pretraining, FOV exemplars, dataset statistics, and
+few-shot adaptation, plus a legacy notebook for the external-dataset predictions
+that appeared in earlier preprint versions but are not in the current draft. See
 [`notebooks/README.md`](notebooks/README.md) for the full notebook list, the
 shared `dct_figures` helper package, the data-download step, and how to run each
 notebook.
